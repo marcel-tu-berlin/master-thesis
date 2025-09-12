@@ -1,0 +1,119 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{parskip}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=apa,natbib=true,sorting=nyt,maxbibnames=20]{biblatex}
+\DeclareLanguageMapping{english}{english-apa}
+\addbibresource{references.bib}
+
+\geometry{
+    a4paper,
+    left=25mm,
+    right=25mm,
+    top=30mm,
+    bottom=30mm,
+}
+
+\title{Comparing the Total Cost of Ownership (TCO) and Trust Properties of Off-Chain Computation Across Blockchains}
+\author{Marcel Heidebrecht\\Information Systems Engineering, TU Berlin}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{refsection}
+
+\section*{1. Context}
+
+Blockchain systems face a fundamental challenge: providing security and decentralization at scale while keeping transaction costs low. As global demand for decentralized applications grows, Layer-1 blockchains (like Ethereum and Solana) are evolving to offer various trade-offs between throughput, finality, and decentralization. To address scaling issues, many ecosystems adopt off-chain computation techniques (sometimes called Layer-2 or hybrid solutions), which allow complex operations to be executed outside the main chain and then verified or anchored on-chain. \parencite[pp.~1--2]{gorzny2024rollupcomparisonframework}
+
+Typical examples include zk-rollups (using cryptographic proofs of correctness), optimistic rollups (using dispute periods), and emerging hybrid or modular approaches. Each Layer-1 ecosystem pairs with one or more Layer-2 options, creating a complex design space for developers and architects. \parencite[pp.~4--6]{cryptoeprint:2024/889}
+
+For practitioners, understanding the economic and trust implications of choosing a given Layer-1 and Layer-2 pairing is critical. \parencite[p.~3]{cryptoeprint:2024/889} However, there is little systematic, practical guidance on the total cost of off-chain computation and the security-decentralization guarantees that come with it. \parencite[pp.~1--2]{gorzny2024rollupcomparisonframework}
+
+\section*{2. Problem and Research Question}
+
+Developers currently lack an objective way to compare the cost and qualitative properties of combining different off-chain computation models with different blockchains. Decisions are often based on fragmented information, popular trends, or partial cost analyses.
+
+\textbf{Main Research Question:} How do total cost of ownership and trust properties of off-chain computation solutions differ when combined with different Layer-1 blockchains?
+
+\textbf{Sub-questions:}
+\begin{enumerate}[itemsep=0.5ex]
+    \item What cost factors drive the TCO for off-chain computation across verification, data availability, and proof generation?
+    \item How do these costs vary between major blockchains (e.g., Ethereum, Solana) and scaling models (e.g., zk-rollups, optimistic rollups)?
+    \item What qualitative differences in security, decentralization, and finality are relevant for each platform and technology combination?
+    \item How can these findings help guide architects and developers towards informed and application-specific choices?
+\end{enumerate}
+
+\section*{3. Solution Idea and Approach}
+
+The thesis will use a combination of modeling, system prototyping, and empirical evaluation to compare mainstream off-chain computation approaches on multiple blockchains.
+
+\begin{enumerate}[itemsep=0.5ex]
+    \item Define a generic TCO model usable for any off-chain computation stack. Break down all economic costs, including off-chain computation (e.g., proof generation), on-chain costs (e.g., gas for verification or fraud proofs), and data availability (e.g., posting transaction data). 
+    \item Select a representative set of Layer-1 blockchains and scaling solutions. Candidates include Ethereum, Solana, and their most common Layer-2 solutions such as zk-rollups and optimistic rollups. The study may use zk-rollups as a worked example given their strong privacy and integrity properties.
+    \item Implement a small, standardized off-chain computation workload (e.g., simple balance update or threshold signature scheme) to test across all selected technologies.
+    \item Deploy and test the workload on available testnets, using open-source tooling for proof generation and contract deployment. Collect all relevant cost and performance metrics.
+    \item Evaluate and summarize qualitative aspects, including validator decentralization, time to finality, and known security risks, for each candidate system.
+    \item Summarize results into a comparison table or matrix so architects can match workload and trust needs to one or more optimal deployment options.
+\end{enumerate}
+
+\section*{4. Aspired Implementation}
+
+\begin{itemize}[itemsep=0.5ex]
+    \item Create a reproducible off-chain computation workload for deployment on multiple blockchain ecosystems.
+    \item Automate cost, performance, and resource usage measurements using scripts.
+    \item Leverage available zk-rollup and rollup simulator libraries, as well as testnet RPC providers, to ensure realistic measurement.
+    \item Produce all data and source code in an open, reproducible package suitable for future reference or extension.
+\end{itemize}
+
+\section*{5. Evaluation and Assessment}
+
+\begin{itemize}[itemsep=0.5ex]
+    \item Run case studies at different workload sizes (e.g., transaction batches of size 10, 100, and 1000).
+    \item Measure TCO by breaking down all major costs for each Layer-1 and Layer-2 combination.
+    \item Document runtime, proof generation, and on-chain costs.
+    \item Compare security and liveness properties using external research, ecosystem trackers, and documentation.
+    \item Present results in normalized tables and figures.
+    \item Deliver a clear guide for practitioners summarizing the findings.
+\end{itemize}
+
+\section*{6. Timeline}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllp{6cm}@{}}
+\toprule
+\textbf{Phase} & \textbf{Start} & \textbf{End} & \textbf{Description} \\
+\midrule
+Research \& Selection        & Oct 13, 2025 & Nov 2, 2025   & Finalize scope, collect core readings \\
+Prototype Implementation    & Nov 3, 2025  & Dec 7, 2025   & Develop generic workload and deploy tooling \\
+Measurement Setup           & Dec 8, 2025  & Dec 28, 2025  & Automate experiments, run initial collection \\
+Experiments \& Analysis     & Dec 29, 2025 & Jan 18, 2026  & Full tests, raw data analysis \\
+Writing \& Revisions        & Jan 19, 2026 & Feb 3, 2026   & Results write-up and discussion \\
+Buffer \& Final Submission  & Feb 4, 2026  & Mar 13, 2026  & Open for revisions, advisor review, submission \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vfill
+\noindent
+\clearpage
+
+\printbibliography[heading=subbibliography,title={References Cited in Exposé}]
+\end{refsection}
+
+\begin{refsection}
+\nocite{gogol2025scalingdefizkrollups,cryptoeprint:2025/172,8525392,cryptoeprint:2019/360,ethereum_rollup_costs_2024,ethereum_optimistic_rollups_2025,Bappy_2025,wood_yellow_paper_2014,solana_whitepaper_2020,eip4844_2022,heinrich_tco_cloud_2023}
+\printbibliography[heading=subbibliography,title={Preliminary Bibliography (For Later Thesis Stages)}]
+\end{refsection}
+
+\textbf{Contact:} marcel.heidebrecht@campus.tu-berlin.de
+
+\textbf{GitHub:} \url{https://github.com/marcel-tu-berlin/master-thesis}
+\end{document}
