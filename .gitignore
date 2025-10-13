@@ -46,3 +46,4 @@
 .mtc
 build/
 *SAVE-ERROR
+.DS_Store
