@@ -11,14 +11,14 @@
 \addbibresource{references.bib}
 
 \geometry{
-    a4paper,
-    left=25mm,
-    right=25mm,
-    top=30mm,
-    bottom=30mm,
+  a4paper,
+  left=25mm,
+  right=25mm,
+  top=30mm,
+  bottom=30mm,
 }
 
-\title{Comparing the Total Cost of Ownership (TCO) and Trust Properties of Off-Chain Computation Across Blockchains}
+\title{Comparative Analysis of Total Cost of Ownership and Trust Properties Across Off-Chain Blockchain Architectures}
 \author{Marcel Heidebrecht\\Information Systems Engineering, TU Berlin}
 \date{\today}
 
@@ -28,92 +28,114 @@
 
 \begin{refsection}
 
-\section*{1. Context}
+  \section*{1. Context}
 
-Blockchain systems face a fundamental challenge: providing security and decentralization at scale while keeping transaction costs low. As global demand for decentralized applications grows, Layer-1 blockchains (like Ethereum and Solana) are evolving to offer various trade-offs between throughput, finality, and decentralization. To address scaling issues, many ecosystems adopt off-chain computation techniques (sometimes called Layer-2 or hybrid solutions), which allow complex operations to be executed outside the main chain and then verified or anchored on-chain. \parencite[pp.~1--2]{gorzny2024rollupcomparisonframework}
+  Blockchain systems face a fundamental challenge: providing security and decentralization at scale while keeping transaction costs low. Traditional monolithic blockchains handle all functions---execution, consensus, data availability, and settlement---within a single layer, creating inherent scalability limitations \parencite{monrat2024taxonomy,chaliasos2024analyzing}.
 
-Typical examples include zk-rollups (using cryptographic proofs of correctness), optimistic rollups (using dispute periods), and emerging hybrid or modular approaches. Each Layer-1 ecosystem pairs with one or more Layer-2 options, creating a complex design space for developers and architects. \parencite[pp.~4--6]{cryptoeprint:2024/889}
+  To address these constraints, the blockchain ecosystem has developed diverse off-chain computation methodologies, each with distinct architectural characteristics, trust models, and cost structures \parencite{eberhardt2018offchaining}. State channels enable bilateral or small-group interactions through off-chain state updates with on-chain settlement only at channel closure \parencite{poon2016lightning,gudgeon2019layertwo}. Sidechains operate as independent blockchains with two-way asset pegs to parent chains, offering customized consensus and execution environments \parencite{gudgeon2019layertwo}. Rollups (both optimistic and ZK-based) batch transactions off-chain while posting compressed data and validity proofs to base layers \parencite{gorzny2024rollupcomparisonframework,chaliasos2024analyzing}. Validiums and Plasma chains push data availability off-chain while maintaining cryptographic commitments on-chain \parencite{gudgeon2019layertwo}. Oracle networks perform specialized computations (data aggregation, randomness, automation) off-chain and deliver results on-chain \parencite{muhlberger2020foundational,heiss2019fromoracles}. Trusted Execution Environments (TEEs) leverage hardware-based secure enclaves for confidential off-chain computation with cryptographic attestation \parencite{castillo2025tcu}.
 
-For practitioners, understanding the economic and trust implications of choosing a given Layer-1 and Layer-2 pairing is critical. \parencite[p.~3]{cryptoeprint:2024/889} However, there is little systematic, practical guidance on the total cost of off-chain computation and the security-decentralization guarantees that come with it. \parencite[pp.~1--2]{gorzny2024rollupcomparisonframework}
+  Each methodology presents fundamentally different cost profiles. State channels minimize on-chain costs but require upfront capital lockup and are limited to fixed participant sets \parencite{poon2016lightning}. Sidechains offer flexibility but introduce additional security and bridging costs \parencite{gudgeon2019layertwo}. Rollups achieve high throughput but incur data posting and proof generation expenses \parencite{gorzny2024rollupcomparisonframework}. Validiums reduce data costs but rely on off-chain data availability committees \parencite{gudgeon2019layertwo}. Oracles externalize computation but depend on decentralized networks for security \parencite{muhlberger2020foundational}. TEE-based solutions provide hardware-backed privacy but require specialized infrastructure and trust in manufacturer security \parencite{castillo2025tcu}.
 
-\section*{2. Problem and Research Question}
+  Recent research has emphasized the need for trustworthy off-chain computation that goes beyond traditional safety and liveness properties. \textcite{heiss2019fromoracles} introduce truthfulness as a fundamental requirement for Data On-chaining Systems, arguing that external data provisioning must not only be correct and available but also provided in good faith. Furthermore, the Trusted Compute Unit (TCU) framework \parencite{castillo2025tcu} demonstrates how heterogeneous verifiable computation technologies---including TEEs and zkVMs---can be composed into modular, chainable components, enabling technology-agnostic off-chain architectures.
 
-Developers currently lack an objective way to compare the cost and qualitative properties of combining different off-chain computation models with different blockchains. Decisions are often based on fragmented information, popular trends, or partial cost analyses.
+  For practitioners, understanding the economic and trust trade-offs across these architectures is critical, yet systematic comparisons of total cost of ownership remain limited.
 
-\textbf{Main Research Question:} How do total cost of ownership and trust properties of off-chain computation solutions differ when combined with different Layer-1 blockchains?
+  \section*{2. Problem and Research Question}
 
-\textbf{Sub-questions:}
-\begin{enumerate}[itemsep=0.5ex]
-    \item What cost factors drive the TCO for off-chain computation across verification, data availability, and proof generation?
-    \item How do these costs vary between major blockchains (e.g., Ethereum, Solana) and scaling models (e.g., zk-rollups, optimistic rollups)?
-    \item What qualitative differences in security, decentralization, and finality are relevant for each platform and technology combination?
-    \item How can these findings help guide architects and developers towards informed and application-specific choices?
-\end{enumerate}
+  Developers and architects currently lack a systematic framework to compare the total cost of ownership and trust properties across the diverse landscape of off-chain computation architectures. While existing oracle systems address specific aspects of off-chain computation \parencite{heiss2019fromoracles}, they lack comprehensive cost analysis across diverse architectural approaches. The TCU framework's empirical evaluation \parencite{castillo2025tcu} reveals significant performance trade-offs between TEE and zkVM implementations, with costs varying by orders of magnitude depending on workload characteristics and data volumes. Decisions are often based on fragmented information, technology hype cycles, or partial cost analyses focused on single architectural approaches.
 
-\section*{3. Solution Idea and Approach}
+  \textbf{Main Research Question:} How do different off-chain computation architectures compare in terms of total cost of ownership and trust properties, and under what conditions should practitioners select each approach?
 
-The thesis will use a combination of modeling, system prototyping, and empirical evaluation to compare mainstream off-chain computation approaches on multiple blockchains.
+  \textbf{Sub-questions:}
+  \begin{enumerate}[itemsep=0.5ex]
+    \item What are the fundamental cost components for each major off-chain architecture (state channels, sidechains, rollups, validiums, oracles, TEE-based solutions)?
+    \item How do trust assumptions differ across off-chain methodologies, and how do these affect operational costs and security requirements?
+    \item Under what workload characteristics (transaction volume, data intensity, participant count, latency requirements) does each architecture provide optimal total cost of ownership?
+    \item What practical decision framework can guide practitioners in selecting appropriate off-chain architectures for specific application requirements?
+  \end{enumerate}
 
-\begin{enumerate}[itemsep=0.5ex]
-    \item Define a generic TCO model usable for any off-chain computation stack. Break down all economic costs, including off-chain computation (e.g., proof generation), on-chain costs (e.g., gas for verification or fraud proofs), and data availability (e.g., posting transaction data). 
-    \item Select a representative set of Layer-1 blockchains and scaling solutions. Candidates include Ethereum, Solana, and their most common Layer-2 solutions such as zk-rollups and optimistic rollups. The study may use zk-rollups as a worked example given their strong privacy and integrity properties.
-    \item Implement a small, standardized off-chain computation workload (e.g., simple balance update or threshold signature scheme) to test across all selected technologies.
-    \item Deploy and test the workload on available testnets, using open-source tooling for proof generation and contract deployment. Collect all relevant cost and performance metrics.
-    \item Evaluate and summarize qualitative aspects, including validator decentralization, time to finality, and known security risks, for each candidate system.
-    \item Summarize results into a comparison table or matrix so architects can match workload and trust needs to one or more optimal deployment options.
-\end{enumerate}
+  \section*{3. Solution Idea and Approach}
 
-\section*{4. Aspired Implementation}
+  The thesis will develop a systematic, architecture-agnostic comparison framework using a combination of cost modeling, standardized workload evaluation, and qualitative trust analysis.
 
-\begin{itemize}[itemsep=0.5ex]
-    \item Create a reproducible off-chain computation workload for deployment on multiple blockchain ecosystems.
-    \item Automate cost, performance, and resource usage measurements using scripts.
-    \item Leverage available zk-rollup and rollup simulator libraries, as well as testnet RPC providers, to ensure realistic measurement.
-    \item Produce all data and source code in an open, reproducible package suitable for future reference or extension.
-\end{itemize}
+  A comprehensive, architecture-agnostic cost model will be defined \parencite{heinrich2023tcocloud}, building upon established requirements for trustworthy off-chain systems \parencite{heiss2019fromoracles}, including authenticity (verifiable data origin), integrity (tamper-proof data), availability (reliable component access), and accountability (incentive-compatible behavior). Additionally, the evidence-based trustworthiness framework from TrustOps \parencite{brito2025trustops} will be adopted, which emphasizes the continuous collection and verification of authenticated evidence throughout the software lifecycle.
 
-\section*{5. Evaluation and Assessment}
+  The cost model encompasses setup costs (channel deposits, sidechain deployment, rollup initialization, oracle network staking), execution costs (off-chain computation resources including CPU, memory, storage, and proof generation hardware), data costs (on-chain data posting via calldata or blobs, off-chain storage, data availability layer fees), settlement and verification costs (on-chain transaction fees, proof verification gas, oracle result submission), infrastructure costs (node operation, sequencer/operator services, TEE hardware), security costs (collateral/bonds, challenge mechanisms, fraud monitoring), and interoperability costs (bridge operations, cross-chain messaging, exit/withdrawal processing).
 
-\begin{itemize}[itemsep=0.5ex]
-    \item Run case studies at different workload sizes (e.g., transaction batches of size 10, 100, and 1000).
-    \item Measure TCO by breaking down all major costs for each Layer-1 and Layer-2 combination.
-    \item Document runtime, proof generation, and on-chain costs.
-    \item Compare security and liveness properties using external research, ecosystem trackers, and documentation.
-    \item Present results in normalized tables and figures.
-    \item Deliver a clear guide for practitioners summarizing the findings.
-\end{itemize}
+  Representative implementations will be selected for each architecture \parencite{gorzny2024rollupcomparisonframework,dinh2017blockbench}. For state channels, the Bitcoin Lightning Network and Ethereum state channels will serve as reference implementations. Sidechains will be examined through Polygon PoS and Gnosis Chain. The rollup category includes optimistic rollups (such as Optimism or Arbitrum) and ZK-rollups (such as zkSync or Polygon zkEVM). Validiums and Plasma chains will be represented through StarkEx validium mode and Plasma-inspired architectures. Oracle networks will be analyzed via Chainlink (decentralized oracle network) and API3 (first-party oracle). TEE-based solutions include Secret Network (CosmWasm with Intel SGX) and implementations from the TCU framework.
 
-\section*{6. Timeline}
+  Standardized workload profiles will be designed to enable fair comparison across architectures. Profile A targets high frequency, low data scenarios such as micropayments and token transfers (1000+ TPS target). Profile B addresses moderate frequency, medium data use cases including DEX swaps and DeFi interactions (100--500 TPS). Profile C focuses on low frequency, high data applications such as NFT minting and complex contract deployments (10--50 TPS).
 
-\begin{table}[ht]
-\centering
-\begin{tabular}{@{}lllp{6cm}@{}}
-\toprule
-\textbf{Phase} & \textbf{Start} & \textbf{End} & \textbf{Description} \\
-\midrule
-Research \& Selection        & Oct 13, 2025 & Nov 2, 2025   & Finalize scope, collect core readings \\
-Prototype Implementation    & Nov 3, 2025  & Dec 7, 2025   & Develop generic workload and deploy tooling \\
-Measurement Setup           & Dec 8, 2025  & Dec 28, 2025  & Automate experiments, run initial collection \\
-Experiments \& Analysis     & Dec 29, 2025 & Jan 18, 2026  & Full tests, raw data analysis \\
-Writing \& Revisions        & Jan 19, 2026 & Feb 3, 2026   & Results write-up and discussion \\
-Buffer \& Final Submission  & Feb 4, 2026  & Mar 13, 2026  & Open for revisions, advisor review, submission \\
-\bottomrule
-\end{tabular}
-\end{table}
+  The measurement methodology \parencite{dinh2017blockbench,geyer2023endtoendperformancecomparison} captures quantitative metrics including cost per transaction (USD) across volume scales (10, 100, 1000 transactions), latency metrics (time to soft finality and hard finality), capital efficiency (locked funds versus throughput achieved), and infrastructure requirements (hardware specifications and operational complexity). Testnets and publicly available performance data will be utilized where possible, with actual implementations deployed only for architectures where critical cost data is unavailable.
 
-\vfill
-\noindent
-\clearpage
+  Qualitative trust and operational analysis \parencite{eberhardt2018offchaining,heiss2019fromoracles} will examine multiple dimensions. Trust dimensions include truthfulness (good-faith data provisioning and computation execution as defined by \textcite{heiss2019fromoracles}), liveness assumptions (consequences of operator unavailability), data availability models (on-chain versus off-chain versus committee-based), censorship resistance (centralized sequencers versus decentralized ordering), cryptoeconomic security (stake requirements, fraud proofs, validity proofs), and hardware trust (TEE manufacturer security and remote attestation as discussed in \textcite{castillo2025tcu}). Operational complexity encompasses developer onboarding difficulty, monitoring and maintenance requirements, and upgrade and governance mechanisms.
 
-\printbibliography[heading=subbibliography,title={References Cited in Exposé}]
+  An architecture selection framework will be developed, creating a decision matrix that maps application characteristics (throughput needs, data volume, participant model, privacy requirements) to recommended architectures with explicit cost ranges and trust trade-offs. This comparison framework extends the oracle categorization methodology of \textcite{heiss2019fromoracles} and incorporates cost metrics from the TCU empirical evaluation \parencite{castillo2025tcu}.
+
+  \section*{4. Aspired Implementation}
+
+  The implementation phase encompasses several key components designed to enable systematic comparison across diverse blockchain architectures. A blockchain-agnostic transaction simulation framework will be developed, with workload generator scripts for the different execution environments including EVM, CosmWasm, and custom virtual machines. This approach ensures consistent workload application across heterogeneous systems.
+
+  A modular cost measurement framework will be implemented to capture the full spectrum of economic factors. Separate measurement modules will track on-chain costs through gas fee monitoring, off-chain computation via CPU and memory profiling, data availability through cost calculation across different storage tiers, and infrastructure resource consumption for operational overhead. This modular design allows for architecture-specific adaptations while maintaining comparability.
+
+  The research will leverage established frameworks where applicable to ensure methodological rigor. BLOCKBENCH \parencite{dinh2017blockbench} will serve as the foundation for permissioned system evaluation, while components from the TCU framework \parencite{castillo2025tcu} will be adapted for TEE and zkVM assessments. Methodologies from existing rollup comparison frameworks \parencite{gorzny2024rollupcomparisonframework} will inform the evaluation of layer-2 solutions.
+
+  Where direct measurements prove infeasible due to resource or access constraints, public data sources will supplement the empirical findings. Block explorers, network statistics dashboards, and published case studies provide valuable real-world data points that can validate and extend experimental results. This hybrid approach balances practical constraints with comprehensive coverage.
+
+  The ultimate deliverable will be a reproducible comparison package comprising documented methodology, measurement scripts, and standardized cost breakdown templates. Making these resources openly accessible enables validation by the research community and provides practitioners with practical tools for architecture evaluation in their specific contexts.
+
+  \section*{5. Evaluation and Assessment}
+
+  The evaluation methodology applies the three standardized workload profiles (A, B, C) systematically across selected implementations of each architecture category. This controlled approach ensures that observed differences reflect architectural properties rather than workload variations.
+
+  Detailed cost breakdowns will decompose total ownership costs into constituent components: direct transaction costs, data posting and storage costs, proof and verification costs (incorporating TEE versus zkVM comparisons from \textcite{castillo2025tcu}), infrastructure operational costs, and security-related opportunity costs such as collateral lockup. This granular analysis reveals which cost factors dominate under different conditions and identifies optimization opportunities.
+
+  Results will be normalized to enable meaningful cross-architecture comparison. Standard metrics include cost per transaction, cost per data unit (KB), and cost per finality guarantee level. Normalization accounts for differences in transaction expressiveness, data encoding efficiency, and security model maturity across architectures.
+
+  Trust-cost trade-offs will be systematically documented following the trustworthiness requirements established by \textcite{heiss2019fromoracles}. The analysis will examine how architectures with lower operational costs often embed higher trust assumptions, how capital lockup requirements trade off against recurring operational expenses, and how latency requirements interact with security guarantees. These multidimensional trade-offs form the basis for the architecture selection framework.
+
+  Results will be presented through comparison matrices and visual representations including radar charts for multidimensional property comparison and cost curves showing how expenses scale with usage. These visualizations make architectural differences immediately apparent and support decision-making processes.
+
+  Findings will be validated through triangulation with existing literature and industry case studies where available. This validation ensures that experimental results align with real-world deployments and identifies any gaps between theoretical predictions and practical outcomes.
+
+  \section*{6. Scope Management}
+
+  This thesis focuses on architectural-level cost comparison rather than implementation-specific optimization. The goal is to provide strategic guidance for architecture selection, not exhaustive performance benchmarking of every available implementation.
+
+  The research scope includes representative implementations of each major off-chain architecture, standardized workload profiles applied consistently across architectures, systematic cost component identification and measurement methodology, qualitative trust model comparison incorporating the truthfulness dimension introduced by \textcite{heiss2019fromoracles}, and a practical decision framework for practitioners facing architecture selection decisions.
+
+  Several areas lie outside the scope to maintain focus and feasibility within thesis constraints. Low-level optimization of specific implementations, while valuable, would require depth that precludes breadth of coverage. Novel architecture design or protocol improvements represent future work rather than comparative analysis. Comprehensive security audits and attack simulations exceed the resource constraints of a master's thesis. Formal verification of trust models, while theoretically rigorous, demands mathematical expertise beyond the thesis scope. Production-scale deployment is unnecessary given that testnets combined with extrapolation from public mainnet data provide sufficient empirical foundation.
+
+  \newpage
+
+  \section*{8. Timeline}
+
+  \begin{table}[ht]
+    \centering
+    \begin{tabular}{@{}lllp{6cm}@{}}
+      \toprule
+      \textbf{Phase} & \textbf{Start} & \textbf{End} & \textbf{Description} \\
+      \midrule
+      Research \& Selection       & Nov 8, 2025 & Nov 30, 2025   & Literature review, architecture selection, cost model design \\
+      Prototype Implementation    & Dec 1, 2025  & Jan 11, 2026   & Develop workload generators, cost measurement framework \\
+      Measurement Setup           & Jan 12, 2026  & Jan 25, 2026  & Deploy, automate data collection \\
+      Experiments \& Analysis     & Jan 26, 2026 & Feb 8, 2026  & Execute workload profiles, collect cost data \\
+      Comparative Analysis        & Feb 9, 2026 & Mar 8, 2026   & Normalize results, trust analysis, framework development \\
+      Writing \& Revisions        & Mar 9, 2026 & Apr 12, 2026   & Full thesis write-up, advisor feedback integration \\
+      Final Submission            & Apr 13, 2026  & May 7, 2026  & Final revisions and submission \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \vfill
+  \noindent
+  \clearpage
+
+  \printbibliography
 \end{refsection}
 
-\begin{refsection}
-\nocite{gogol2025scalingdefizkrollups,cryptoeprint:2025/172,8525392,cryptoeprint:2019/360,ethereum_rollup_costs_2024,ethereum_optimistic_rollups_2025,Bappy_2025,wood_yellow_paper_2014,solana_whitepaper_2020,eip4844_2022,heinrich_tco_cloud_2023}
-\printbibliography[heading=subbibliography,title={Preliminary Bibliography (For Later Thesis Stages)}]
-\end{refsection}
-
-\textbf{Contact:} marcel.heidebrecht@campus.tu-berlin.de
+\textbf{Contact:} \href{mailto:marcel.heidebrecht@campus.tu-berlin.de}{marcel.heidebrecht@campus.tu-berlin.de}
 
 \textbf{GitHub:} \url{https://github.com/marcel-tu-berlin/master-thesis}
+
 \end{document}
