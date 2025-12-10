@@ -81,7 +81,7 @@ The research will follow a design science approach involving the implementation 
 \item \textbf{Cost Efficiency:} Comparative cost (in native tokens/gas, normalized to USD) of executing a linear supply chain verification versus a cyclic compound interest calculation on Oasis Cipher versus Aleo.
 \item \textbf{Performance \& Latency:} Wall-clock time from transaction submission to on-chain confirmation, comparing Aleo's proof generation and verification time against Oasis's execution-plus-attestation time for varying complexity levels.
 \item \textbf{Trust Boundaries:} Qualitative analysis of security guarantees, comparing hardware-root-of-trust models with the cryptographic-root-of-trust model (zk-SNARKs on Aleo), particularly regarding upgradeability of the system and side-channel risks \parencite{munoz2023teesurvey}.
-\item \textbf{Code Complexity:} Lines of code (LOC) and development effort required to implement equivalent logic in Rust (Oasis) vs. Leo (Aleo).
+\item \textbf{Code Complexity:} Quantitative assessment using established software metrics: Lines of Code (LOC), Cyclomatic Complexity (CC) measuring independent control flow paths, and Halstead complexity measures (vocabulary size, program length, difficulty, and effort). These metrics will be compared for equivalent logic implementations in Rust (Oasis) vs. Leo (Aleo).
 \end{itemize}
 
 \section*{4. Aspired Implementation}
