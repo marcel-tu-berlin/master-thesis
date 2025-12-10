@@ -1,4 +1,5 @@
 \documentclass[11pt,a4paper]{article}
+
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
 \usepackage{booktabs}
@@ -8,18 +9,19 @@
 \usepackage{enumitem}
 \usepackage{csquotes}
 \usepackage[backend=biber,style=apa,natbib=true,sorting=nyt,maxbibnames=20]{biblatex}
+
 \DeclareLanguageMapping{english}{english-apa}
 \addbibresource{references.bib}
 
 \geometry{
-  a4paper,
-  left=25mm,
-  right=25mm,
-  top=30mm,
-  bottom=30mm,
+a4paper,
+left=25mm,
+right=25mm,
+top=30mm,
+bottom=30mm
 }
 
-\title{Comparative Analysis of Total Cost of Ownership and Trust Properties Across Off-Chain Blockchain Architectures}
+\title{Comparative Analysis of Trusted Execution Environments and zkVMs for Privacy-Preserving L1 Architectures}
 \author{Marcel Heidebrecht\\Information Systems Engineering, TU Berlin}
 \date{\today}
 
@@ -29,150 +31,127 @@
 
 \begin{refsection}
 
-  \section*{1. Context}
+\section*{1. Context}
 
-  Blockchain systems face a fundamental challenge: providing security and decentralization at scale while keeping transaction costs low. Traditional monolithic blockchains handle all functions---execution, consensus, data availability, and settlement---within a single layer, creating inherent scalability limitations \parencite{monrat2024taxonomy,chaliasos2024analyzing, mssassi2025blockchaintrilemma}.
+Blockchain systems face a fundamental trade-off between public verifiability and data privacy. While traditional distributed ledgers offer transparency, they are unsuitable for applications requiring confidentiality, such as enterprise supply chains or private financial settlements \parencite{eberhardt2018offchaining}. To address this, two distinct Layer-1 (L1) paradigms have emerged to enable privacy-preserving computation: hardware-based isolation via Trusted Execution Environments (TEEs) and cryptographic verification via Zero-Knowledge Virtual Machines (zkVMs).
 
-  To address these constraints, the blockchain ecosystem has developed diverse off-chain computation methodologies across heterogeneous Layer 1 architectures, each with distinct architectural characteristics, trust models, and cost structures \parencite{eberhardt2018offchaining}. State channels enable bilateral or small-group interactions through off-chain state updates with on-chain settlement only at channel closure \parencite{poon2016lightning,gudgeon2019layertwo}. Rollups (both optimistic and ZK-based) batch transactions off-chain while posting compressed data and validity proofs to base layers \parencite{gorzny2024rollupcomparisonframework,chaliasos2024analyzing}. Validiums push data availability off-chain while maintaining cryptographic commitments on-chain \parencite{gudgeon2019layertwo}. Oracle networks perform specialized computations (data aggregation, randomness, automation) off-chain and deliver results on-chain \parencite{muhlberger2020foundational,heiss2019fromoracles}. Off-chain workers and stateless architectures enable long-running computations outside blockchain consensus while maintaining state integration \parencite{chainparser2025substrate}. Cryptographic state proofs provide lightweight verification mechanisms without requiring full node operation \parencite{algorand2024stateproofs}. Trusted Execution Environments (TEEs) leverage hardware-based secure enclaves for confidential off-chain computation with cryptographic attestation \parencite{munoz2023teesurvey,sabt2015teewhatisit,castillo2025tcu}.
+\textbf{Oasis Network} represents the hardware-based approach, utilizing a modular architecture where consensus is separated from computation. Its ParaTimes leverage TEEs to execute smart contracts over encrypted data, ensuring that node operators cannot view the state they are computing. Oasis supports multiple TEE backends---including Intel SGX and TDX---each offering different trade-offs between Trusted Computing Base (TCB) size and ease of deployment. This architecture, originally introduced as Ekiden \parencite{cheng2019ekiden}, runs smart contracts in TEEs over confidential state while maintaining the scalability benefits of separating consensus from execution \parencite{oasis2025docs}. 
 
-  Critically, these methodologies span not only different off-chain approaches but also fundamentally different Layer 1 blockchain architectures. While Ethereum's account-based EVM model dominates current research, alternative architectures---including Cardano's Extended UTXO model \parencite{chakravarty2020extendedutxo}, Polkadot's Layer 0 parachain framework \parencite{abbas2022analysispolkadotarchitectureinternals}, Algorand's Pure Proof-of-Stake with state proofs \parencite{chen2017algorand}, and Solana's Proof-of-History high-throughput design \parencite{yakovenko2018solana}---present distinct cost profiles and trust assumptions that remain under-explored in comparative analyses.
+In contrast, \textbf{Aleo} represents the cryptographic approach, providing privacy guarantees for all transactions by default. Aleo utilizes the \textit{snarkVM} \parencite{provable2025snarkvm} and the \textit{Leo} \parencite{provable2025leo} programming language to execute state transitions off-chain and generate succinct validity proofs (zk-SNARKs) that are verified on-chain. This removes the need for trust in hardware manufacturers, relying instead on the hardness of discrete logarithm problems \parencite{aleo2025docs, ben2013snarkforc}.
 
-  Each methodology presents fundamentally different cost profiles. State channels minimize on-chain costs but require upfront capital lockup and are limited to fixed participant sets \parencite{poon2016lightning}. Rollups achieve high throughput but incur data posting and proof generation expenses \parencite{gorzny2024rollupcomparisonframework}. Validiums reduce data costs but rely on off-chain data availability committees \parencite{gudgeon2019layertwo}. Oracles externalize computation but depend on decentralized networks for security \parencite{muhlberger2020foundational}. Off-chain workers integrate with on-chain state but introduce operator dependencies \parencite{chainparser2025substrate}. State proofs enable lightweight clients but require cryptographic overhead \parencite{algorand2024stateproofs}. TEE-based solutions provide hardware-backed privacy but require specialized infrastructure and trust in manufacturer security \parencite{munoz2023teesurvey,sabt2015teewhatisit}.
+The Trusted Compute Unit (TCU) framework \parencite{castillo2025tcu} suggests that these technologies share a functional goal---verifiable off-chain computation---but their architectural trade-offs differ significantly. While TEEs offer near-native performance, they require trust in hardware manufacturers and their attestation infrastructure. Conversely, zkVMs offer stronger trustlessness but historically suffer from high proof-generation latency \parencite{lavin2024zkps}.
 
-  Recent research has emphasized the need for trustworthy off-chain computation that goes beyond traditional safety and liveness properties. \textcite{heiss2019fromoracles} introduce truthfulness as a fundamental requirement for Data On-chaining Systems, arguing that external data provisioning must not only be correct and available but also provided in good faith. Furthermore, the Trusted Compute Unit (TCU) framework \parencite{castillo2025tcu} demonstrates how heterogeneous verifiable computation technologies---including TEEs and zkVMs---can be composed into modular, chainable components, enabling technology-agnostic off-chain architectures.
+\section*{2. Problem and Research Question}
 
-  For practitioners, understanding the economic and trust trade-offs across these architectures---both at the off-chain methodology level and across different Layer 1 foundations---is critical, yet systematic comparisons of total cost of ownership spanning non-EVM ecosystems remain limited.
+Practitioners currently lack a rigorous decision framework for selecting between TEE-based L1s (Oasis) and zkVM-based L1s (Aleo) for specific application topologies. While informal comparisons exist in practitioner blogs and community articles, these typically lack systematic methodology and reproducible benchmarks. Consequently, technology selection is often driven by ideological preference rather than empirical metrics regarding cost, latency, and state management.
 
-  \section*{2. Problem and Research Question}
+Specifically, the performance gap between these two approaches fluctuates based on the \textit{topology} of the workflow. TEEs generally excel at stateful, persistent applications (cyclic), while zkVMs are becoming increasingly efficient for stateless verification (linear). However, no peer-reviewed study has rigorously benchmarked these specific L1 protocols against identical logic flows.
 
-  Developers and architects currently lack a systematic framework to compare the total cost of ownership and trust properties across the diverse landscape of off-chain computation architectures, particularly when considering non-EVM Layer 1 blockchains. While existing oracle systems address specific aspects of off-chain computation \parencite{heiss2019fromoracles}, they lack comprehensive cost analysis across diverse architectural approaches and heterogeneous blockchain foundations. The TCU framework's empirical evaluation \parencite{castillo2025tcu} reveals significant performance trade-offs between TEE and zkVM implementations, with costs varying by orders of magnitude depending on workload characteristics and data volumes. However, these analyses remain largely confined to EVM-compatible environments. Decisions are often based on fragmented information, technology hype cycles, or partial cost analyses focused on single architectural approaches or single blockchain ecosystems.
+\textbf{Research Question:} How do Oasis Network (TEE) and Aleo (zkVM) compare in terms of execution cost, finality latency, and trust properties when applied to linear versus cyclic workflow topologies?
 
-  \textbf{Main Research Question:} How do different off-chain computation architectures compare in terms of total cost of ownership and trust properties across heterogeneous Layer 1 blockchain protocols, and under what conditions should practitioners select each approach?
+\section*{3. Solution Idea and Approach}
 
-  \textbf{Sub-questions:}
-  \begin{enumerate}[itemsep=0.5ex]
-    \item What are the fundamental cost components for each major off-chain architecture (state channels, rollups, validiums, oracles, off-chain workers, cryptographic state proofs, TEE-based solutions) across different Layer 1 foundations?
-    \item How do trust assumptions differ across off-chain methodologies and Layer 1 architectures (EVM, UTXO, Layer 0, sharded, high-throughput), and how do these affect operational costs and security requirements?
-    \item Under what workload characteristics (transaction volume, data intensity, participant count, latency requirements) does each architecture-blockchain combination provide optimal total cost of ownership?
-    \item What practical decision framework can guide practitioners in selecting appropriate off-chain architectures for specific application requirements across diverse blockchain ecosystems?
-  \end{enumerate}
+This thesis will conduct a comparative evaluation by implementing two distinct workflow topologies---Linear and Cyclic---on both Oasis and Aleo.
 
-  \section*{3. Solution Idea and Approach}
+\textbf{Technology Selection:}
 
-  The thesis will develop a systematic, architecture-agnostic comparison framework using a combination of cost modeling, standardized workload evaluation, and qualitative trust analysis across heterogeneous Layer 1 blockchain protocols.
+\begin{itemize}[itemsep=0.3ex]
 
-  A comprehensive, architecture-agnostic cost model will be defined \parencite{heinrich2023tcocloud}, building upon established requirements for trustworthy off-chain systems \parencite{heiss2019fromoracles}, including authenticity (verifiable data origin), integrity (tamper-proof data), availability (reliable component access), and accountability (incentive-compatible behavior). Additionally, the evidence-based trustworthiness framework from TrustOps \parencite{brito2025trustops} will be adopted, which emphasizes the continuous collection and verification of authenticated evidence throughout the software lifecycle.
+\item \textbf{TEE Platform (Oasis Network):} The \textit{Cipher ParaTime} will be used as the primary environment. It supports WebAssembly (WASM) smart contracts written in Rust, executing inside TEEs. Privacy is enforced through hardware isolation.
 
-  The cost model encompasses setup costs (channel deposits, rollup initialization, oracle network staking, validator requirements), execution costs (off-chain computation resources including CPU, memory, storage, and proof generation hardware), data costs (on-chain data posting via calldata or blobs, off-chain storage, data availability layer fees), settlement and verification costs (on-chain transaction fees, proof verification gas, oracle result submission), infrastructure costs (node operation, sequencer/operator services, TEE hardware, collator operation), security costs (collateral/bonds, challenge mechanisms, fraud monitoring), and interoperability costs (bridge operations, cross-chain messaging, exit/withdrawal processing).
+\item \textbf{zkVM Platform (Aleo):} The \textit{Leo} programming language and \textit{snarkVM} will be used. Logic will be compiled into arithmetic circuits, and execution will generate zero-knowledge proofs submitted to the Aleo Testnet. Privacy is enforced through cryptographic proofs.
 
-  Representative implementations will be selected across five distinct off-chain architectural categories and diverse Layer 1 protocols \parencite{gorzny2024rollupcomparisonframework,dinh2017blockbench}. For state channels, Hydra on Cardano (UTXO-based, isomorphic multi-party channels) will serve as the primary reference implementation \parencite{chakravarty2020hydra}. The rollup category will be represented by Polygon zkEVM on Ethereum (EVM-equivalent ZK-rollup with validity proofs) \parencite{polygon2024zkprover,nazarabadi2025zkevmsarchitectures}. For validiums and off-chain data availability, Immutable X (StarkEx validium mode) provides a production implementation \parencite{connolly2021immutable}. Polkadot Off-Chain Workers represent stateless architectures with integrated on-chain state access within a Layer 0 framework \parencite{chainparser2025substrate}. Oracle-based off-chain computation will be examined through Chainlink on Solana (high-throughput, Proof-of-History architecture with Off-Chain Reporting) \parencite{chainlink2024solana,ellis2017chainlink}. Algorand State Proofs will represent cryptographic lightweight verification mechanisms \parencite{algorand2024stateproofs}. Where appropriate, TEE-based solutions from the TCU framework will provide cross-cutting comparisons.
+\end{itemize}
 
-  This selection ensures coverage of: (1) diverse off-chain methodologies (state channels, ZK-rollups, validiums, off-chain workers, oracles, state proofs), (2) heterogeneous Layer 1 architectures (UTXO, account-based EVM, Layer 0 parachains, sharded, Proof-of-History), (3) different trust models (cryptographic proofs, economic incentives, committee-based, hardware-backed), and (4) varying consensus mechanisms (Ouroboros, Ethereum PoS, nominated PoS, Pure PoS, Proof-of-History).
+\textbf{Workload Topologies:}
 
-  Standardized workload profiles will be designed to enable fair comparison across heterogeneous architectures. Profile A targets high frequency, low data scenarios such as micropayments and token transfers (1000+ TPS target). Profile B addresses moderate frequency, medium data use cases including DEX swaps and DeFi interactions (100--500 TPS). Profile C focuses on low frequency, high data applications such as NFT minting and complex contract deployments (10--50 TPS). These profiles will be adapted to each blockchain's native execution environment (EVM bytecode, Plutus scripts, Substrate pallets, Algorand TEAL, Solana programs) to ensure comparability.
+\begin{itemize}
 
-  The measurement methodology \parencite{dinh2017blockbench,geyer2023endtoendperformancecomparison} captures quantitative metrics including cost per transaction (USD) across volume scales (10, 100, 1000 transactions), latency metrics (time to soft finality and hard finality), capital efficiency (locked funds versus throughput achieved), and infrastructure requirements (hardware specifications and operational complexity). Blockchain-agnostic workload generators will be developed for different execution environments. Testnets and publicly available performance data will be utilized where possible, with actual implementations deployed only for architectures where critical cost data is unavailable.
+\item \textbf{Linear Acyclic Graph (Supply Chain):} A unidirectional workflow where an asset passes through distinct verification steps (e.g., Producer $\rightarrow$ Logistics $\rightarrow$ Retailer).
 
-  Qualitative trust and operational analysis \parencite{eberhardt2018offchaining,heiss2019fromoracles} will examine multiple dimensions. Trust dimensions include truthfulness (good-faith data provisioning and computation execution as defined by \textcite{heiss2019fromoracles}), liveness assumptions (consequences of operator unavailability), data availability models (on-chain versus off-chain versus committee-based), censorship resistance (centralized sequencers versus decentralized ordering), cryptoeconomic security (stake requirements, fraud proofs, validity proofs), consensus model dependencies (PoS, Pure PoS, nominated PoS, Proof-of-History), and hardware trust (TEE manufacturer security and remote attestation as discussed in \textcite{castillo2025tcu,munoz2023teesurvey}). Operational complexity encompasses developer onboarding difficulty across different smart contract languages and frameworks, monitoring and maintenance requirements, and upgrade and governance mechanisms.
+\item \textbf{Cyclic Graph (Recurrent Financial State):} A stateful workflow where the output feeds back into the input (e.g., a private savings account updating interest).
 
-  An architecture selection framework will be developed, creating a decision matrix that maps application characteristics (throughput needs, data volume, participant model, privacy requirements, target blockchain ecosystem) to recommended architectures with explicit cost ranges and trust trade-offs. This comparison framework extends the oracle categorization methodology of \textcite{heiss2019fromoracles} and incorporates cost metrics from the TCU empirical evaluation \parencite{castillo2025tcu}, while expanding coverage to non-EVM Layer 1 protocols.
+\end{itemize}
 
-  \textbf{Section Summary:}
-  \begin{itemize}[itemsep=0.3ex,leftmargin=*]
-    \item Comprehensive cost model covering setup, execution, data, settlement, infrastructure, security, and interoperability costs
-    \item Trust framework incorporating authenticity, integrity, availability, accountability, and truthfulness
-    \item Representative implementations across five architectural categories: Hydra (state channels), Polygon zkEVM (rollups), Immutable X (validiums), Polkadot Off-Chain Workers (stateless), Chainlink on Solana (oracles), Algorand State Proofs
-    \item Coverage of heterogeneous Layer 1 architectures: UTXO, EVM, Layer 0, Pure PoS, Proof-of-History
-    \item Three standardized workload profiles: high frequency/low data (1000+ TPS), moderate frequency/medium data (100--500 TPS), low frequency/high data (10--50 TPS)
-    \item Quantitative metrics: cost per transaction, latency to finality, capital efficiency, infrastructure requirements
-    \item Qualitative analysis: truthfulness, liveness, data availability, censorship resistance, cryptoeconomic security, hardware trust
-    \item Decision framework mapping application characteristics to optimal architecture-blockchain combinations
-  \end{itemize}
+\textbf{Methodology:}
 
-  \section*{4. Aspired Implementation}
+The research will follow a design science approach involving the implementation of these topologies. To answer the research question, three evaluation dimensions will be examined:
 
-  The implementation phase encompasses several key components designed to enable systematic comparison across diverse blockchain architectures spanning multiple Layer 1 protocols. A blockchain-agnostic transaction simulation framework will be developed, with workload generator scripts for different execution environments including EVM (Solidity), Extended UTXO (Plutus), Substrate (Rust/WASM), Algorand Virtual Machine (TEAL/PyTeal), and Solana Virtual Machine (Rust). This approach ensures consistent workload application across fundamentally heterogeneous systems.
+\begin{itemize}
+\item \textbf{Cost Efficiency:} Comparative cost (in native tokens/gas, normalized to USD) of executing a linear supply chain verification versus a cyclic compound interest calculation on Oasis Cipher versus Aleo.
+\item \textbf{Performance \& Latency:} Wall-clock time from transaction submission to on-chain confirmation, comparing Aleo's proof generation and verification time against Oasis's execution-plus-attestation time for varying complexity levels.
+\item \textbf{Trust Boundaries:} Qualitative analysis of security guarantees, comparing hardware-root-of-trust models with the cryptographic-root-of-trust model (zk-SNARKs on Aleo), particularly regarding upgradeability of the system and side-channel risks \parencite{munoz2023teesurvey}.
+\item \textbf{Code Complexity:} Lines of code (LOC) and development effort required to implement equivalent logic in Rust (Oasis) vs. Leo (Aleo).
+\end{itemize}
 
-  A modular cost measurement framework will be implemented to capture the full spectrum of economic factors across different blockchain fee models. Separate measurement modules will track on-chain costs through gas fee monitoring (adapting to each chain's fee structure: Ethereum gas, Cardano transaction fees, Polkadot weight-based fees, Algorand microAlgos, Solana lamports), off-chain computation via CPU and memory profiling, data availability through cost calculation across different storage tiers, and infrastructure resource consumption for operational overhead. This modular design allows for architecture-specific and blockchain-specific adaptations while maintaining comparability through normalized metrics.
+\section*{4. Aspired Implementation}
 
-  The research will leverage established frameworks where applicable to ensure methodological rigor. BLOCKBENCH \parencite{dinh2017blockbench} will serve as the foundation for permissioned system evaluation, while components from the TCU framework \parencite{castillo2025tcu} will be adapted for TEE and zkVM assessments. Methodologies from existing rollup comparison frameworks \parencite{gorzny2024rollupcomparisonframework} will inform the evaluation of layer-2 solutions.
+The implementation phase will involve developing a privacy benchmark suite deployed on both networks.
 
-  Where direct measurements prove infeasible due to resource or access constraints, public data sources will supplement the empirical findings. Block explorers (Etherscan, Cardanoscan, Subscan, Pera AlgoExplorer, Solscan), network statistics dashboards, and published case studies provide valuable real-world data points that can validate and extend experimental results. This hybrid approach balances practical constraints with comprehensive coverage across multiple blockchain ecosystems.
+\textbf{Phase 1: Logic Specification}
+A platform-agnostic specification of the Supply Chain and Savings Account algorithms will be defined to ensure logical equivalence.
 
-  The ultimate deliverable will be a reproducible comparison package comprising documented methodology, blockchain-agnostic measurement scripts, and standardized cost breakdown templates. Making these resources openly accessible enables validation by the research community and provides practitioners with practical tools for architecture evaluation across their specific blockchain contexts.
+\textbf{Phase 2: Aleo Implementation (Leo)}
+The logic will be implemented in the Leo language. The focus will be on the \textit{Record} model---how Aleo handles state privacy by consuming and creating records. A local prover will be used to generate proofs for the Aleo Testnet.
 
-  \textbf{Section Summary:}
-  \begin{itemize}[itemsep=0.3ex,leftmargin=*]
-    \item Blockchain-agnostic transaction simulation framework for EVM, Extended UTXO, Substrate, Algorand VM, and Solana VM
-    \item Modular cost measurement framework tracking on-chain costs, off-chain computation, data availability, and infrastructure
-    \item Adaptation of established frameworks: BLOCKBENCH for permissioned systems, TCU framework for TEE/zkVM, rollup comparison methodologies
-    \item Hybrid measurement approach combining direct empirical measurements with public data from block explorers, network dashboards, and case studies
-    \item Deliverable: reproducible comparison package with documented methodology, measurement scripts, and standardized templates
-  \end{itemize}
+\textbf{Phase 3: Oasis Implementation (Rust/WASM)}
+The equivalent logic will be implemented as a smart contract for the Oasis Cipher ParaTime using the Oasis SDK. The implementation will explicitly utilize the confidential state store to demonstrate TEE capabilities.
 
-  \section*{5. Evaluation and Assessment}
+\textbf{Phase 4: Benchmarking}
+Scripts will automatically trigger transactions on both testnets.
+\begin{itemize}
+    \item \textit{Scenario A (Low Load):} Single transaction execution.
+    \item \textit{Scenario B (High Load):} Batch processing to stress-test proof generation vs. enclave throughput.
+\end{itemize}
 
-  The evaluation methodology applies the three standardized workload profiles (A, B, C) systematically across selected implementations of each architecture category, spanning multiple Layer 1 blockchain protocols. This controlled approach ensures that observed differences reflect architectural properties and blockchain-specific characteristics rather than workload variations.
+\section*{5. Evaluation and Assessment}
 
-  Detailed cost breakdowns will decompose total ownership costs into constituent components: direct transaction costs (accounting for different fee mechanisms across blockchains), data posting and storage costs (varying significantly between on-chain data availability models), proof and verification costs (incorporating TEE versus zkVM comparisons from \textcite{castillo2025tcu} and blockchain-specific verification gas costs), infrastructure operational costs (node operation requirements across different consensus mechanisms), and security-related opportunity costs such as collateral lockup (varying by blockchain staking mechanisms). This granular analysis reveals which cost factors dominate under different conditions and identifies optimization opportunities across blockchain ecosystems.
+The evaluation will synthesize quantitative metrics with qualitative architectural analysis.
 
-  Results will be normalized to enable meaningful cross-architecture and cross-blockchain comparison. Standard metrics include cost per transaction (USD), cost per data unit (KB), cost per finality guarantee level, and throughput-normalized costs. Normalization accounts for differences in transaction expressiveness (UTXO versus account-based models), data encoding efficiency (varying bytecode sizes), security model maturity, and consensus finality characteristics (probabilistic versus deterministic finality).
+\textbf{Quantitative Analysis:}
+\begin{itemize}
+\item \textbf{Latency Cross-over:} The hypothesis is that Aleo (zkVM) will have higher latency for complex cyclic computations due to proof generation overhead, whereas Oasis (TEE) will maintain linear scaling relative to execution complexity.
+\item \textbf{Cost Structure:} Comparison of proof-based fee structures (Aleo) versus execution-based fee structures (Oasis).
+\end{itemize}
 
-  Trust-cost trade-offs will be systematically documented following the trustworthiness requirements established by \textcite{heiss2019fromoracles}. The analysis will examine how architectures with lower operational costs often embed higher trust assumptions, how capital lockup requirements differ across blockchain staking models, how latency requirements interact with security guarantees, and how consensus mechanism properties (finality speed, validator set size, economic security) influence off-chain solution design. These multidimensional trade-offs form the basis for the architecture selection framework.
+\textbf{Qualitative Analysis:}
+\begin{itemize}
+\item \textbf{Security Model:} A critical comparison of hardware-based and cryptographic trust models. This includes discussing the implications of known TEE vulnerabilities (e.g., side-channel attacks) versus the risks of trusted setup ceremonies or circuit bugs in ZK systems \parencite{munoz2023teesurvey, tang2024zkpvulns}.
+\item \textbf{Developer Experience:} Comparing the maturity of the Oasis Rust SDK vs. the Leo language ecosystem.
+\end{itemize}
 
-  Results will be presented through comparison matrices and visual representations including radar charts for multidimensional property comparison across blockchain ecosystems, cost curves showing how expenses scale with usage across different Layer 1 protocols, and decision trees mapping application requirements to optimal architecture-blockchain combinations. These visualizations make architectural differences immediately apparent and support decision-making processes.
+\section*{6. Scope Management}
 
-  Findings will be validated through triangulation with existing literature and industry case studies where available. This validation ensures that experimental results align with real-world deployments across different blockchain ecosystems and identifies any gaps between theoretical predictions and practical outcomes.
+To ensure feasibility, the following constraints are applied:
 
-  \textbf{Section Summary:}
-  \begin{itemize}[itemsep=0.3ex,leftmargin=*]
-    \item Systematic application of three workload profiles across all implementations and Layer 1 protocols
-    \item Granular cost decomposition: transaction costs, data posting/storage, proof/verification, infrastructure, security/collateral
-    \item Normalized metrics enabling cross-architecture and cross-blockchain comparison: cost per transaction, cost per KB, cost per finality level, throughput-normalized costs
-    \item Trust-cost trade-off analysis examining operational costs versus trust assumptions, capital lockup, latency-security interaction, consensus mechanism influences
-    \item Visual representations: radar charts for multidimensional comparison, cost curves showing scaling behavior, decision trees for architecture selection
-    \item Validation through triangulation with existing literature and real-world case studies across blockchain ecosystems
-  \end{itemize}
+\begin{itemize}
+\item \textbf{Excluded Features:} Cross-chain bridges and decentralized front-ends are excluded. The focus is strictly on the L1 protocol execution.
+\item \textbf{Network Selection:} Only Oasis (Cipher) and Aleo are considered. Other privacy chains are out of scope.
+\item \textbf{Testnet Only:} All deployments will occur on public testnets to avoid financial costs.
+\end{itemize}
 
-  \section*{6. Scope Management}
+\section*{8. Timeline}
 
-  This thesis focuses on architectural-level cost comparison across representative Layer 1 blockchains rather than implementation-specific optimization or exhaustive coverage of all blockchain protocols. The goal is to provide strategic guidance for architecture selection spanning diverse blockchain ecosystems, not exhaustive performance benchmarking of every available implementation.
+\begin{table}[ht]
+\small
+\begin{tabularx}{\textwidth}{@{}lcX@{}}
+\toprule
+\textbf{Phase} & \textbf{Weeks} & \textbf{Description} \\
+\midrule
+Literature Review \& Design & 1-3 & Study Oasis ParaTime architecture and Aleo SnarkVM/Leo docs. \\
+Implementation (Aleo) & 4-6 & Develop Linear/Cyclic workflows in Leo. Deploy to Aleo Testnet. \\
+Implementation (Oasis) & 7-9 & Develop workflows in Rust for Cipher ParaTime. Deploy to Oasis Testnet. \\
+Benchmarking & 10-12 & Build \& Execute automated scripts. Collect gas and latency logs. \\
+Evaluation \& Analysis & 13-15 & Analyze cost/latency trade-offs. Write Trust Boundary chapter. \\
+Writing & 16-20 & Draft thesis chapters. \\
+Final Polish & 21-24 & Final review and submission. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-  The research scope includes representative implementations of major off-chain architectures (state channels, ZK-rollups, validiums, off-chain workers, oracles, state proofs) across diverse Layer 1 protocols (representing UTXO, account-based, Layer 0, and high-throughput architectures), standardized workload profiles applied consistently across heterogeneous execution environments, systematic cost component identification and measurement methodology adapted to different blockchain fee models, qualitative trust model comparison incorporating the truthfulness dimension introduced by \textcite{heiss2019fromoracles} and consensus mechanism dependencies, and a practical decision framework for practitioners facing architecture selection decisions across blockchain ecosystems.
+\printbibliography
 
-  Several areas lie outside the scope to maintain focus and feasibility within thesis constraints. Comprehensive coverage of all Layer 1 blockchains is infeasible; instead, representative protocols are selected to span the architectural diversity space. Low-level optimization of specific implementations, while valuable, would require depth that precludes breadth of coverage. Novel architecture design or protocol improvements represent future work rather than comparative analysis. Comprehensive security audits and attack simulations exceed the resource constraints of a master's thesis. Formal verification of trust models, while theoretically rigorous, demands mathematical expertise beyond the thesis scope. Production-scale deployment is unnecessary given that testnets combined with extrapolation from public mainnet data across multiple blockchains provide sufficient empirical foundation.
-
-  \newpage
-
-  \section*{8. Timeline}
-
-  \begin{table}[ht]
-    \small
-    \begin{tabularx}{\textwidth}{@{}lcX@{}}
-      \toprule
-      \textbf{Phase} & \textbf{Weeks} & \textbf{Description} \\
-      \midrule
-      Research \& Selection (starts immediately) & 0-3 & Further Literature review, detailed architecture and blockchain selection, refined cost model design for heterogeneous systems \\
-      Prototype Implementation & 2-7 & Develop blockchain-agnostic workload generators, cost measurement framework across execution environments \\
-      Measurement Setup & 5-7 & Deploy across multiple testnets, automate data collection \\
-      Experiments \& Analysis & 7-9 & Execute workload profiles, collect cost data across blockchains \\
-      Comparative Analysis & 9-10 & Normalize results across heterogeneous systems, trust analysis, framework development \\
-      Writing \& Revisions & 2-20 & Full thesis write-up, advisor feedback integration \\
-      Final Submission & 20-24 & Final revisions and submission \\
-      \bottomrule
-    \end{tabularx}
-  \end{table}
-
-  \vfill
-  \noindent
-  \clearpage
-
-  \printbibliography
 \end{refsection}
-
-\textbf{Contact:} \href{mailto:marcel.heidebrecht@campus.tu-berlin.de}{marcel.heidebrecht@campus.tu-berlin.de}
-
-\textbf{GitHub:} \url{https://github.com/marcel-tu-berlin/master-thesis}
 
 \end{document}
 

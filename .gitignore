@@ -47,4 +47,5 @@
 build/
 *SAVE-ERROR
 .DS_Store
+*TS.md
 old/
